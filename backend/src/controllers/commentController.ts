@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 
 export const postComment = async (req: Request, res: Response) => {
   const { parentId, parentType, content } = req.body;
-  const userId = req.user.id; // From authMiddleware
+  const userId = req.user!.id; // From authMiddleware
 
   if (!parentId || !parentType || !content) {
     return res.status(400).json({ error: 'Missing comment data' });
@@ -30,7 +30,7 @@ export const postComment = async (req: Request, res: Response) => {
 
     if (error) return res.status(500).json({ error: error.message });
     res.status(201).json(data);
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -47,7 +47,7 @@ export const getComments = async (req: Request, res: Response) => {
 
     if (error) return res.status(500).json({ error: error.message });
     res.json(data);
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' });
   }
 };

@@ -26,7 +26,7 @@ export const createPO = async (req: Request, res: Response) => {
     if (poError) return res.status(500).json({ error: poError.message });
 
     // 2. Create the PO items
-    const poItems = items.map((item: any) => ({
+    const poItems = items.map((item: { description: string, quantity: number, unit_price: number }) => ({
       po_id: po.id,
       description: item.description,
       quantity: item.quantity,
@@ -40,7 +40,7 @@ export const createPO = async (req: Request, res: Response) => {
     if (itemsError) return res.status(500).json({ error: itemsError.message });
 
     res.status(201).json(po);
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -63,7 +63,7 @@ export const getPOs = async (req: Request, res: Response) => {
     if (error) return res.status(500).json({ error: error.message });
 
     res.json(data);
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' });
   }
 };

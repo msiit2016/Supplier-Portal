@@ -86,7 +86,7 @@ export const getInvoices = async (req: Request, res: Response) => {
     if (error) return res.status(500).json({ error: error.message });
 
     res.json(data);
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' });
   }
 };

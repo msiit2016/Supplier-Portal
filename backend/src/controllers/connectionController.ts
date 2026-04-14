@@ -28,7 +28,7 @@ export const inviteSupplier = async (req: Request, res: Response) => {
     }
 
     res.status(201).json(data);
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -50,7 +50,7 @@ export const getConnections = async (req: Request, res: Response) => {
     if (error) return res.status(500).json({ error: error.message });
 
     res.json(data);
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -76,7 +76,7 @@ export const updateConnectionStatus = async (req: Request, res: Response) => {
     if (!data) return res.status(404).json({ error: 'Connection not found or unauthorized' });
 
     res.json(data);
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' });
   }
 };

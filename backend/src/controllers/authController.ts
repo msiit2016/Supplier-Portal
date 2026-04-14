@@ -53,8 +53,7 @@ export const registerTenant = async (req: Request, res: Response) => {
       tenant: tenantData
     });
 
-  } catch (err) {
-    console.error('Registration Error:', err);
+  } catch {
     res.status(500).json({ error: 'Internal server error' });
   }
 };

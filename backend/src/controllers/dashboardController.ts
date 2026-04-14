@@ -35,7 +35,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       activeConnections: activeConnections || 0,
       completionRate: '98%' // Static for now or calculated from COMPLETED POs
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' });
   }
 };

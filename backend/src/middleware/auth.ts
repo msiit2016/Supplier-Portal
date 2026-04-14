@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 declare global {
   namespace Express {
     interface Request {
-      user?: any;
+      user?: import('@supabase/supabase-js').User;
       tenantId?: string;
     }
   }
@@ -48,8 +48,8 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     req.tenantId = profile.tenant_id;
 
     next();
-  } catch (err) {
-    console.error('Auth Middleware Error:', err);
+  } catch (error) {
+    console.error('Auth Middleware Error:', error);
     res.status(500).json({ error: 'Internal server error during authentication' });
   }
 };
