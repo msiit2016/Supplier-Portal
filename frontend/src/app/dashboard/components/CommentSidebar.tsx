@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Send, X, MessageSquare, Clock } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -24,13 +24,7 @@ export default function CommentSidebar({ parentId, parentType, isOpen, onClose }
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (isOpen && session) {
-      fetchComments();
-    }
-  }, [isOpen, session, parentId]);
-
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost:3001/api/comments/${parentId}`, {
         headers: { Authorization: `Bearer ${session?.access_token}` },
@@ -40,7 +34,13 @@ export default function CommentSidebar({ parentId, parentType, isOpen, onClose }
     } catch (err) {
       console.error('Error fetching comments:', err);
     }
-  };
+  }, [parentId, session]);
+
+  useEffect(() => {
+    if (isOpen && session) {
+      fetchComments();
+    }
+  }, [isOpen, session, fetchComments]);
 
   const handlePostComment = async (e: React.FormEvent) => {
     e.preventDefault();

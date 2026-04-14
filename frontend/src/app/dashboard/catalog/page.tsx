@@ -2,15 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  Package, 
+  Package,
   Plus, 
   Search, 
   Filter, 
-  MoreVertical, 
   Edit3, 
   Trash2, 
-  CheckCircle2, 
-  AlertCircle,
   Columns
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -40,11 +37,7 @@ export default function CatalogPage() {
     currency: 'USD'
   });
 
-  useEffect(() => {
-    if (session) fetchProducts();
-  }, [session]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = React.useCallback(async () => {
     try {
       const response = await fetch('http://localhost:3001/api/products', {
         headers: { Authorization: `Bearer ${session?.access_token}` },
@@ -56,7 +49,11 @@ export default function CatalogPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [session]);
+
+  useEffect(() => {
+    if (session) fetchProducts();
+  }, [session, fetchProducts]);
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();

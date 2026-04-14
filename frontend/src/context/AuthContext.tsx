@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
@@ -26,6 +26,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [tenantId, setTenantId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchTenantProfile = useCallback(async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from('user_profiles')
+        .select('tenant_id')
+        .eq('id', userId)
+        .single();
+      
+      if (data) setTenantId(data.tenant_id);
+    } catch (err) {
+      console.error('Error fetching tenant profile:', err);
+    }
+  }, []);
+
   useEffect(() => {
     // 1. Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -48,21 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     return () => subscription.unsubscribe();
-  }, []);
-
-  const fetchTenantProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('tenant_id')
-        .eq('id', userId)
-        .single();
-      
-      if (data) setTenantId(data.tenant_id);
-    } catch (err) {
-      console.error('Error fetching tenant profile:', err);
-    }
-  };
+  }, [fetchTenantProfile]);
 
   const signOut = async () => {
     await supabase.auth.signOut();

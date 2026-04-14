@@ -52,14 +52,7 @@ export default function POSPage() {
     items: [{ description: '', quantity: 1, unit_price: 0 }]
   });
 
-  useEffect(() => {
-    if (session) {
-      fetchPOs();
-      fetchSuppliers();
-    }
-  }, [session]);
-
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = React.useCallback(async () => {
     try {
       const response = await fetch('http://localhost:3001/api/connections', {
         headers: { Authorization: `Bearer ${session?.access_token}` },
@@ -75,9 +68,9 @@ export default function POSPage() {
     } catch (err) {
       console.error('Error fetching suppliers:', err);
     }
-  };
+  }, [session, tenantId]);
 
-  const fetchPOs = async () => {
+  const fetchPOs = React.useCallback(async () => {
     try {
       const response = await fetch('http://localhost:3001/api/pos', {
         headers: { Authorization: `Bearer ${session?.access_token}` },
@@ -89,7 +82,14 @@ export default function POSPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [session]);
+
+  useEffect(() => {
+    if (session) {
+      fetchPOs();
+      fetchSuppliers();
+    }
+  }, [session, fetchPOs, fetchSuppliers]);
 
   const handleUpdateStatus = async (id: string, status: string) => {
     try {

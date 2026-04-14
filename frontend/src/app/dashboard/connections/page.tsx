@@ -40,11 +40,7 @@ export default function ConnectionsPage() {
   const [loading, setLoading] = useState(false);
   const [invitingId, setInvitingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (session) fetchConnections();
-  }, [session]);
-
-  const fetchConnections = async () => {
+  const fetchConnections = React.useCallback(async () => {
     try {
       const response = await fetch('http://localhost:3001/api/connections', {
         headers: { Authorization: `Bearer ${session?.access_token}` },
@@ -54,7 +50,11 @@ export default function ConnectionsPage() {
     } catch (err) {
       console.error('Error fetching connections:', err);
     }
-  };
+  }, [session]);
+
+  useEffect(() => {
+    if (session) fetchConnections();
+  }, [session, fetchConnections]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();

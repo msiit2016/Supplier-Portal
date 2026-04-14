@@ -6,7 +6,6 @@ import {
   Search, 
   Filter, 
   MoreHorizontal, 
-  ArrowUpRight,
   Clock,
   CheckCircle2,
   AlertCircle,
@@ -45,11 +44,7 @@ export default function InvoicesPage() {
   const [loading, setLoading] = useState(true);
   const [activeInvoice, setActiveInvoice] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (session) fetchInvoices();
-  }, [session]);
-
-  const fetchInvoices = async () => {
+  const fetchInvoices = React.useCallback(async () => {
     try {
       const response = await fetch('http://localhost:3001/api/invoices', {
         headers: { Authorization: `Bearer ${session?.access_token}` },
@@ -61,7 +56,11 @@ export default function InvoicesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [session]);
+
+  useEffect(() => {
+    if (session) fetchInvoices();
+  }, [session, fetchInvoices]);
 
   const handleUpdateStatus = async (id: string, status: string) => {
     try {

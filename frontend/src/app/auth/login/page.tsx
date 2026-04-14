@@ -31,7 +31,7 @@ function LoginContent() {
     setSuccess('');
 
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
+      const { error: authError } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
@@ -40,8 +40,8 @@ function LoginContent() {
 
       // Success - Redirect happens automatically via AuthContext or can be manual
       window.location.href = '/dashboard';
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setLoading(false);
     }
