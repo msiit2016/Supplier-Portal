@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Building2, User, Mail, Lock, CheckCircle2, ChevronRight } from 'lucide-react';
+import { API_BASE_URL } from '@/lib/supabase';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function SignupPage() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

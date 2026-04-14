@@ -15,6 +15,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL } from '@/lib/supabase';
 import CommentSidebar from '../components/CommentSidebar';
 
 interface InvoiceItem {
@@ -46,7 +47,7 @@ export default function InvoicesPage() {
 
   const fetchInvoices = React.useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/invoices', {
+      const response = await fetch(`${API_BASE_URL}/api/invoices`, {
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
       const data = await response.json();
@@ -64,7 +65,7 @@ export default function InvoicesPage() {
 
   const handleUpdateStatus = async (id: string, status: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/invoices/${id}/status`, {
+      const response = await fetch(`${API_BASE_URL}/api/invoices/${id}/status`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',

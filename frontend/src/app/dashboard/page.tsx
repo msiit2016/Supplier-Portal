@@ -13,6 +13,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL } from '@/lib/supabase';
 import Link from 'next/link';
 
 export default function DashboardPage() {
@@ -26,7 +27,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (session) {
-      fetch('http://localhost:3001/api/dashboard/stats', {
+      fetch(`${API_BASE_URL}/api/dashboard/stats`, {
         headers: { Authorization: `Bearer ${session?.access_token}` },
       })
       .then(res => res.json())

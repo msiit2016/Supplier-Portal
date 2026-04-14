@@ -16,6 +16,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL } from '@/lib/supabase';
 import CommentSidebar from '../components/CommentSidebar';
 
 interface POItem {
@@ -54,7 +55,7 @@ export default function POSPage() {
 
   const fetchSuppliers = React.useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/connections', {
+      const response = await fetch(`${API_BASE_URL}/api/connections`, {
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
       const data = await response.json();
@@ -72,7 +73,7 @@ export default function POSPage() {
 
   const fetchPOs = React.useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/pos', {
+      const response = await fetch(`${API_BASE_URL}/api/pos`, {
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
       const data = await response.json();
@@ -93,7 +94,7 @@ export default function POSPage() {
 
   const handleUpdateStatus = async (id: string, status: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/pos/${id}/status`, {
+      const response = await fetch(`${API_BASE_URL}/api/pos/${id}/status`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
@@ -109,7 +110,7 @@ export default function POSPage() {
 
   const handleFlipToInvoice = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/invoices/flip/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/invoices/flip/${id}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
@@ -124,7 +125,7 @@ export default function POSPage() {
     const totalAmount = formData.items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
     
     try {
-      const response = await fetch('http://localhost:3001/api/pos', {
+      const response = await fetch(`${API_BASE_URL}/api/pos`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

@@ -11,6 +11,7 @@ import {
   Columns
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL } from '@/lib/supabase';
 
 interface Product {
   id: string;
@@ -39,7 +40,7 @@ export default function CatalogPage() {
 
   const fetchProducts = React.useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/products', {
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
       const data = await response.json();
@@ -58,7 +59,7 @@ export default function CatalogPage() {
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:3001/api/products', {
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

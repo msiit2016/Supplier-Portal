@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Send, X, MessageSquare, Clock } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL } from '@/lib/supabase';
 
 interface Comment {
   id: string;
@@ -26,7 +27,7 @@ export default function CommentSidebar({ parentId, parentType, isOpen, onClose }
 
   const fetchComments = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/comments/${parentId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/comments/${parentId}`, {
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
       const data = await response.json();
@@ -48,7 +49,7 @@ export default function CommentSidebar({ parentId, parentType, isOpen, onClose }
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/comments', {
+      const response = await fetch(`${API_BASE_URL}/api/comments`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

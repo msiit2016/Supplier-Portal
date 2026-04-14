@@ -15,6 +15,7 @@ import {
   MoreVertical
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { API_BASE_URL } from '@/lib/supabase';
 
 interface Tenant {
   id: string;
@@ -42,7 +43,7 @@ export default function ConnectionsPage() {
 
   const fetchConnections = React.useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/connections', {
+      const response = await fetch(`${API_BASE_URL}/api/connections`, {
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
       const data = await response.json();
@@ -62,7 +63,7 @@ export default function ConnectionsPage() {
     
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/connections/search?query=${searchQuery}`, {
+      const response = await fetch(`${API_BASE_URL}/api/connections/search?query=${searchQuery}`, {
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
       const data = await response.json();
@@ -77,7 +78,7 @@ export default function ConnectionsPage() {
   const inviteSupplier = async (supplierId: string) => {
     setInvitingId(supplierId);
     try {
-      const response = await fetch('http://localhost:3001/api/connections/invite', {
+      const response = await fetch(`${API_BASE_URL}/api/connections/invite`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -99,7 +100,7 @@ export default function ConnectionsPage() {
 
   const updateStatus = async (connectionId: string, status: 'ACTIVE' | 'REJECTED') => {
     try {
-      const response = await fetch(`http://localhost:3001/api/connections/${connectionId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/api/connections/${connectionId}/status`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
