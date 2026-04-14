@@ -6,6 +6,8 @@ import connectionRoutes from './routes/connectionRoutes';
 import poRoutes from './routes/poRoutes';
 import invoiceRoutes from './routes/invoiceRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
+import productRoutes from './routes/productRoutes';
+import commentRoutes from './routes/commentRoutes';
 
 dotenv.config();
 
@@ -21,6 +23,8 @@ app.use('/api/connections', connectionRoutes);
 app.use('/api/pos', poRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/comments', commentRoutes);
 
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

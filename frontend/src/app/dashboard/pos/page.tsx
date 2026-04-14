@@ -12,9 +12,11 @@ import {
   CheckCircle2,
   XCircle,
   Eye,
-  FileDown
+  FileDown,
+  MessageSquare
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import CommentSidebar from '../components/CommentSidebar';
 
 interface POItem {
   id: string;
@@ -39,6 +41,7 @@ export default function POSPage() {
   const { session, tenantId } = useAuth();
   const [pos, setPOs] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activePO, setActivePO] = useState<string | null>(null);
 
   useEffect(() => {
     if (session) fetchPOs();
@@ -204,6 +207,12 @@ export default function POSPage() {
                               Flip to Invoice
                             </button>
                           )}
+                          <button 
+                            onClick={() => setActivePO(po.id)}
+                            className="p-2 rounded-xl text-slate-400 hover:bg-white hover:shadow-sm hover:text-blue-600 transition-all border border-transparent hover:border-slate-100"
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                          </button>
                           <button className="p-2 rounded-xl text-slate-400 hover:bg-white hover:shadow-sm hover:text-blue-600 transition-all border border-transparent hover:border-slate-100">
                             <Eye className="h-4 w-4" />
                           </button>
@@ -252,6 +261,13 @@ export default function POSPage() {
             </div>
          </div>
       </div>
+
+      <CommentSidebar 
+        parentId={activePO || ''}
+        parentType="PO"
+        isOpen={!!activePO}
+        onClose={() => setActivePO(null)}
+      />
     </div>
   );
 }

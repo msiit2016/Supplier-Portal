@@ -12,9 +12,11 @@ import {
   AlertCircle,
   Eye,
   Download,
-  CreditCard
+  CreditCard,
+  MessageSquare
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import CommentSidebar from '../components/CommentSidebar';
 
 interface InvoiceItem {
   id: string;
@@ -39,6 +41,7 @@ export default function InvoicesPage() {
   const { session, tenantId } = useAuth();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeInvoice, setActiveInvoice] = useState<string | null>(null);
 
   useEffect(() => {
     if (session) fetchInvoices();
@@ -212,6 +215,12 @@ export default function InvoicesPage() {
                               Pay Now
                             </button>
                           )}
+                          <button 
+                            onClick={() => setActiveInvoice(inv.id)}
+                            className="p-2 rounded-xl text-slate-400 hover:bg-white hover:shadow-sm hover:text-blue-600 transition-all border border-transparent hover:border-slate-100"
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                          </button>
                           <button className="p-2 rounded-xl text-slate-400 hover:bg-white hover:shadow-sm hover:text-slate-900 transition-all border border-transparent hover:border-slate-100">
                             <Eye className="h-4 w-4" />
                           </button>
@@ -227,6 +236,13 @@ export default function InvoicesPage() {
           </table>
         </div>
       </div>
+
+      <CommentSidebar 
+        parentId={activeInvoice || ''}
+        parentType="INVOICE"
+        isOpen={!!activeInvoice}
+        onClose={() => setActiveInvoice(null)}
+      />
     </div>
   );
 }

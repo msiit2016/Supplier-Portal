@@ -13,12 +13,14 @@ import {
   LogOut, 
   Menu, 
   X,
-  ChevronRight
+  ChevronRight,
+  Package
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Catalog', href: '/dashboard/catalog', icon: Package },
   { name: 'Purchase Orders', href: '/dashboard/pos', icon: FileText },
   { name: 'Invoices', href: '/dashboard/invoices', icon: Receipt },
   { name: 'Connections', href: '/dashboard/connections', icon: Users },
