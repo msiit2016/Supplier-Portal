@@ -29,6 +29,8 @@ interface InvoiceItem {
 interface Invoice {
   id: string;
   invoice_number: string;
+  tenant_id: string;
+  buyer_tenant_id: string;
   status: 'DRAFT' | 'SENT' | 'PAID' | 'OVERDUE';
   total_amount: number;
   created_at: string;

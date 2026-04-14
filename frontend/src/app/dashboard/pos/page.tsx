@@ -29,6 +29,8 @@ interface POItem {
 interface PurchaseOrder {
   id: string;
   po_number: string;
+  tenant_id: string;
+  supplier_tenant_id: string;
   status: 'DRAFT' | 'SENT' | 'ACCEPTED' | 'COMPLETED' | 'CANCELLED';
   total_amount: number;
   created_at: string;
@@ -42,10 +44,38 @@ export default function POSPage() {
   const [pos, setPOs] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [activePO, setActivePO] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [suppliers, setSuppliers] = useState<{id: string, name: string}[]>([]);
+  const [formData, setFormData] = useState({
+    supplierId: '',
+    poNumber: `PO-${Date.now().toString().slice(-4)}`,
+    items: [{ description: '', quantity: 1, unit_price: 0 }]
+  });
 
   useEffect(() => {
-    if (session) fetchPOs();
+    if (session) {
+      fetchPOs();
+      fetchSuppliers();
+    }
   }, [session]);
+
+  const fetchSuppliers = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/connections', {
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      });
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        // Filter for active suppliers where the user is the buyer
+        const activeSuppliers = data
+          .filter(c => c.status === 'ACTIVE' && c.buyer_id === tenantId)
+          .map(c => ({ id: c.supplier_id, name: c.supplier.name }));
+        setSuppliers(activeSuppliers);
+      }
+    } catch (err) {
+      console.error('Error fetching suppliers:', err);
+    }
+  };
 
   const fetchPOs = async () => {
     try {
@@ -87,6 +117,45 @@ export default function POSPage() {
     } catch (err) {
       console.error('Flip error:', err);
     }
+  };
+
+  const handleCreatePO = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const totalAmount = formData.items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+    
+    try {
+      const response = await fetch('http://localhost:3001/api/pos', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({
+          supplierTenantId: formData.supplierId,
+          poNumber: formData.poNumber,
+          totalAmount,
+          items: formData.items
+        }),
+      });
+      if (response.ok) {
+        setIsCreateModalOpen(false);
+        fetchPOs();
+        setFormData({
+          supplierId: '',
+          poNumber: `PO-${Date.now().toString().slice(-4)}`,
+          items: [{ description: '', quantity: 1, unit_price: 0 }]
+        });
+      }
+    } catch (err) {
+      console.error('Create PO error:', err);
+    }
+  };
+
+  const addItemRow = () => {
+    setFormData({
+      ...formData,
+      items: [...formData.items, { description: '', quantity: 1, unit_price: 0 }]
+    });
   };
 
   const statusColors = {
@@ -268,6 +337,130 @@ export default function POSPage() {
         isOpen={!!activePO}
         onClose={() => setActivePO(null)}
       />
+
+      {/* Create PO Modal */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200">
+             <div className="p-10 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                <div>
+                   <h3 className="text-2xl font-black text-slate-900 tracking-tight">Create Purchase Order</h3>
+                   <p className="text-sm text-slate-500 font-medium">Issue a formal procurement request to your supplier.</p>
+                </div>
+                <button onClick={() => setIsCreateModalOpen(false)} className="p-2 hover:bg-white rounded-full transition-colors border border-transparent hover:border-slate-200">
+                   <XCircle className="h-6 w-6 text-slate-400 hover:text-red-500" />
+                </button>
+             </div>
+             
+             <form onSubmit={handleCreatePO} className="p-10 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <div className="grid grid-cols-2 gap-8">
+                   <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Supplier Partner</label>
+                      <select 
+                        required
+                        className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+                        value={formData.supplierId}
+                        onChange={e => setFormData({...formData, supplierId: e.target.value})}
+                      >
+                         <option value="">Select a supplier...</option>
+                         {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                      </select>
+                   </div>
+                   <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5">Order Number</label>
+                      <input 
+                        type="text" 
+                        required
+                        className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-mono"
+                        value={formData.poNumber}
+                        onChange={e => setFormData({...formData, poNumber: e.target.value})}
+                      />
+                   </div>
+                </div>
+
+                <div className="space-y-4">
+                   <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Line Items</label>
+                      <button 
+                        type="button"
+                        onClick={addItemRow}
+                        className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:text-blue-700 underline"
+                      >
+                        + Add Item
+                      </button>
+                   </div>
+                   
+                   {formData.items.map((item, idx) => (
+                     <div key={idx} className="flex gap-4 items-end animate-in fade-in slide-in-from-top-1 duration-300">
+                        <div className="flex-[3]">
+                           <input 
+                              placeholder="Description"
+                              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                              value={item.description}
+                              onChange={e => {
+                                const newItems = [...formData.items];
+                                newItems[idx].description = e.target.value;
+                                setFormData({...formData, items: newItems});
+                              }}
+                           />
+                        </div>
+                        <div className="flex-1">
+                           <input 
+                              type="number"
+                              placeholder="Qty"
+                              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                              value={item.quantity}
+                              onChange={e => {
+                                const newItems = [...formData.items];
+                                newItems[idx].quantity = parseInt(e.target.value);
+                                setFormData({...formData, items: newItems});
+                              }}
+                           />
+                        </div>
+                        <div className="flex-1">
+                           <input 
+                              type="number"
+                              placeholder="Price"
+                              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                              value={item.unit_price}
+                              onChange={e => {
+                                const newItems = [...formData.items];
+                                newItems[idx].unit_price = parseFloat(e.target.value);
+                                setFormData({...formData, items: newItems});
+                              }}
+                           />
+                        </div>
+                     </div>
+                   ))}
+                </div>
+
+                <div className="pt-10 flex items-center justify-between border-t border-slate-100">
+                   <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Estimated Total</p>
+                      <p className="text-3xl font-black text-slate-900">
+                         ${formData.items.reduce((sum, i) => sum + (i.quantity * i.unit_price), 0).toLocaleString()}
+                      </p>
+                   </div>
+                   <div className="flex items-center gap-4">
+                      <button 
+                        type="button"
+                        onClick={() => setIsCreateModalOpen(false)}
+                        className="px-8 py-4 rounded-2xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-all"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        type="submit"
+                        className="px-10 py-4 rounded-2xl bg-slate-900 text-white font-bold hover:bg-blue-600 transition-all shadow-xl shadow-slate-200 active:scale-95"
+                      >
+                        Issue Purchase Order
+                      </button>
+                   </div>
+                </div>
+             </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
