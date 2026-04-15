@@ -49,12 +49,15 @@ export const registerTenant = async (req: Request, res: Response) => {
 
     res.status(201).json({
       message: 'Registration successful',
-      user: authData.user,
-      tenant: tenantData
+      // Explicitly only return public data
+      user: { id: authData.user.id, email: authData.user.email },
+      tenant: { id: tenantData.id, name: tenantData.name, type: tenantData.type }
     });
 
-  } catch {
-    res.status(500).json({ error: 'Internal server error' });
+  } catch (error) {
+    // Audit check: Never log req.body here to protect PII
+    console.error('[auth]: Registration caught a general exception.');
+    res.status(500).json({ error: 'Internal server error during registration' });
   }
 };
 
