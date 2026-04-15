@@ -30,6 +30,19 @@ app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.listen(port, () => {
-  console.log(`[server]: USP Backend is running at http://localhost:${port}`);
+// Start Server
+const server = app.listen(Number(port), '0.0.0.0', () => {
+  console.log(`[server]: USP Backend is running at http://0.0.0.0:${port}`);
+  console.log(`[server]: Health check available at http://0.0.0.0:${port}/health`);
+});
+
+// Handle Railway/Cloud graceful shutdowns and random crashes
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[server]: Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('[server]: Uncaught Exception:', error);
+  // Optional: Graceful shutdown
+  // server.close(() => process.exit(1));
 });
